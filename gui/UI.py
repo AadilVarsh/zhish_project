@@ -21,23 +21,32 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
+CRITERIA = None
+
 
 class Prompt(QDialog):
-    def __init__(self, error_text, parent=None):
+    def __init__(self, title, error_text, type, parent=None):
         super().__init__(parent=parent)
 
-        self.setWindowTitle("Error")
-        Qbtn = QDialogButtonBox.Yes | QDialogButtonBox.No
+        self.setWindowTitle(title)
 
-        self.buttonBox = QDialogButtonBox(Qbtn)
-        self.buttonBox.accepted.connect(self.accept)
-        self.buttonBox.rejected.connect(self.reject)
+        if type == 1:
+            Qbtn = QDialogButtonBox.Yes | QDialogButtonBox.No
+
+            self.buttonBox = QDialogButtonBox(Qbtn)
+            self.buttonBox.accepted.connect(self.accept)
+            self.buttonBox.rejected.connect(self.reject)
+        elif type == 2:
+            Qbtn = QDialogButtonBox.Ok
+            self.buttonBox = QDialogButtonBox(Qbtn)
+            self.buttonBox.accepted.connect(self.accept)
 
         self.layout = QVBoxLayout()
         message = QLabel(error_text)
         self.layout.addWidget(message)
         self.layout.addWidget(self.buttonBox)
         self.setLayout(self.layout)
+
 
 class Ui_zhish_auto_messenger(object):
     def setupUi(self, zhish_auto_messenger):
@@ -141,34 +150,57 @@ class Ui_zhish_auto_messenger(object):
         self.actionOpen.setShortcut(_translate("zhish_auto_messenger", "Ctrl+O"))
         self.actionHow_to_add_variables.setText(_translate("zhish_auto_messenger", "How to add variables?"))
 
-        self.actionExit.triggered.connect(lambda : self.exit(zhish_auto_messenger))
-        self.msg_spread_category_general.toggled.connect(lambda : self.category_selected(1))
-        self.msg_spread_category_custom.toggled.connect(lambda : self.category_selected(2))
-        self.msg_spread_category_monthly.toggled.connect(lambda : self.category_selected(3))
+        self.actionExit.triggered.connect(lambda: self.exit(zhish_auto_messenger))
+        self.msg_spread_category_general.toggled.connect(lambda: self.category_selected(1))
+        self.msg_spread_category_custom.toggled.connect(lambda: self.category_selected(2))
+        self.msg_spread_category_monthly.toggled.connect(lambda: self.category_selected(3))
+
+        self.actionQuick_Run.triggered.connect(lambda: self.quick_run())
+        self.actionRun.triggered.connect(lambda: self.run())
 
     def exit(self, main_widget):
         main_widget.close()
 
     def category_selected(self, category):
-        self.criteria = str()
-        if category == 1:  self.criteria = "general"
-        elif category == 2: self.criteria = "custom"
-        elif category == 3: self.criteria = "monthly"
-        else: self.criteria = "general"
+        global CRITERIA
+        if category == 1:
+            CRITERIA = "general"
+        elif category == 2:
+            CRITERIA = "custom"
+        elif category == 3:
+            CRITERIA = "monthly"
+        else:
+            CRITERIA = "general"
 
     def quick_run(self):
+
         message = self.message_input.toPlainText()
-        criteria = self.criteria
+        self.criteria = CRITERIA
 
+        self.message_input.clear()
 
+    def run(self):
+        prmpt = Prompt('COnfirm Prompt', 'Confirm?', 1)
+        if prmpt.exec_():
+            if CRITERIA is not None:
+                message = self.message_input.toPlainText()
+                self.criteria = CRITERIA
+                # print(message, CRITERIA)
+                self.message_input.clear()
+            else:
+                prmpt = Prompt('invalid input', 'Criteria is None', 2)
+                prmpt.exec_()
+
+        else:
+            pass
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     zhish_auto_messenger = QtWidgets.QMainWindow()
     ui = Ui_zhish_auto_messenger()
     ui.setupUi(zhish_auto_messenger)
     zhish_auto_messenger.show()
     sys.exit(app.exec_())
-
