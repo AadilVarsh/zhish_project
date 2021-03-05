@@ -2,6 +2,7 @@ import pyautogui as pt
 import time
 from pynput.keyboard import Key, Controller
 import os
+import imghdr
 
 # chrome -> search_bar -> type-in-url -> whatsapp-web -> attach -> send
 # required snaps
@@ -15,11 +16,11 @@ import os
 
 KEYBOARD = Controller()
 SLEEP_INTERVAL = 5
-ATTACHMENT = r"E:\study-material\img.png"
+ATTACHMENT = None
 DEFAULT_ATTACHMENT = r"C:\Users\Admin\Pictures\send"
 
 
-def initial_phase(message, phone_number):
+def main_msg(message, phone_number):
     URL = f'https://api.whatsapp.com/send?phone={phone_number}&text={message}'
     # locating chrome
     chrome_img = pt.locateCenterOnScreen("../assets/browser_icon.png", confidence=.7)
@@ -59,9 +60,14 @@ def initial_phase(message, phone_number):
 
     if web_login is None:
         if ATTACHMENT is None:
-            send_attachment(location='default')
+            send_attachment(location='default', isimage=True)
         else:
-            send_attachment(location=ATTACHMENT)
+            if isImage(ATTACHMENT) != True:
+                send_attachment(location=ATTACHMENT, isimage=False)
+            else:
+                send_attachment(location=ATTACHMENT, isimage=True)
+
+
 
     else:
         print('LOG IN TO WHATSAPP WEB!!')
@@ -69,16 +75,15 @@ def initial_phase(message, phone_number):
 
     time.sleep(SLEEP_INTERVAL)
 
-    final_send = pt.locateCenterOnScreen("../Assets/final_send.png", confidence = .7)
+    final_send = pt.locateCenterOnScreen("../Assets/final_send.png", confidence=.7)
 
-    if final_send != None :
+    if final_send != None:
         pt.moveTo(final_send.x, final_send.y, duration=.3)
         pt.leftClick()
 
     time.sleep(SLEEP_INTERVAL)
 
     quit()
-
 
 
 def quit():
@@ -88,50 +93,111 @@ def quit():
         pt.moveTo(close_recg.x, close_recg.y - 30, duration=.3)
         pt.leftClick()
 
-    final_leave = pt.locateCenterOnScreen("../assets/final_leave.png", confidence = .7)
+    final_leave = pt.locateCenterOnScreen("../assets/final_leave.png", confidence=.7)
     if final_leave != None:
         pt.moveTo(final_leave.x, final_leave.y, duration=.3)
         pt.leftClick()
 
 
-def send_attachment(location):
-    attach_icon = pt.locateCenterOnScreen("../assets/attachment_icon.png", confidence=.7)
-    if attach_icon != None:
-        pt.moveTo(attach_icon.x, attach_icon.y, duration=.2)
-        pt.leftClick()
-        pt.moveTo(attach_icon.x, attach_icon.y - 220, duration=.2)
-        pt.leftClick()
+def isImage(path):
+    file_ext = imghdr.what(path)
+    valid_img = ['rgb', 'gif', 'pbm', 'pgm', 'ppm', 'tiff', 'rast', 'xbm', 'jpeg', 'jpg', 'bmp', 'png', 'webp', 'exr']
 
-    time.sleep(SLEEP_INTERVAL)
+    n = False
 
-    open_prompt_recg = pt.locateCenterOnScreen('../assets/open_prompt_recg.png', confidence=.7)
-    if open_prompt_recg != None:
-        pt.moveTo(open_prompt_recg.x, open_prompt_recg.y, duration=.3)
-        pt.moveTo(open_prompt_recg.x + 200, open_prompt_recg.y + 25, duration=.3)
-        pt.leftClick()
+    for f_type in valid_img:
+        if file_ext == f_type:
+            n = True
+            break
+        else:
+            pass
 
-        KEYBOARD.press(Key.ctrl_l)
-        KEYBOARD.press('a')
-        KEYBOARD.release(Key.ctrl_l)
-        KEYBOARD.release('a')
-    if location == 'default':
-        _location = DEFAULT_ATTACHMENT
-        pt.typewrite(_location + '\n')
-        temp_x, temp_y = pt.position()
-        pt.moveTo(temp_x, temp_y + 70)
-        pt.leftClick()
-        pt.typewrite('\n')
 
+def send_attachment(location, isimage):
+    if isimage:
+        attach_icon = pt.locateCenterOnScreen("../assets/attachment_icon.png", confidence=.7)
+        if attach_icon != None:
+            pt.moveTo(attach_icon.x, attach_icon.y, duration=.2)
+            pt.leftClick()
+        img_atch = pt.locateCenterOnScreen("../assets/file_image.png", confidence = .7)
+        if img_atch != None:
+            pt.moveTo(img_atch.x, img_atch.y, duration=.2)
+            pt.leftClick()
+
+        time.sleep(SLEEP_INTERVAL)
+
+        open_prompt_recg = pt.locateCenterOnScreen('../assets/open_prompt_recg.png', confidence=.7)
+        if open_prompt_recg != None:
+            pt.moveTo(open_prompt_recg.x, open_prompt_recg.y, duration=.3)
+            pt.moveTo(open_prompt_recg.x + 200, open_prompt_recg.y + 25, duration=.3)
+            pt.leftClick()
+
+            KEYBOARD.press(Key.ctrl_l)
+            KEYBOARD.press('a')
+            KEYBOARD.release(Key.ctrl_l)
+            KEYBOARD.release('a')
+        if location == 'default':
+            _location = DEFAULT_ATTACHMENT
+            pt.typewrite(_location + '\n')
+            temp_x, temp_y = pt.position()
+            pt.moveTo(temp_x, temp_y + 70)
+            pt.leftClick()
+            pt.typewrite('\n')
+
+        else:
+            clear_attachments()
+            location = f'copy {location.replace("", "")} {os.getcwd()}\..\Attachments\\'
+            os.system(location)
+            location = f'{os.getcwd()}/../Attachments/'
+            pt.typewrite(location.replace('/', '\\') + '\n')
+            temp_x, temp_y = pt.position()
+            pt.moveTo(temp_x, temp_y + 70)
+            pt.leftClick()
+            pt.typewrite('\n')
     else:
-        clear_attachments()
-        location = f'copy {location.replace("", "")} {os.getcwd()}\..\Attachments\\'
-        os.system(location)
-        location = f'{os.getcwd()}/../Attachments/'
-        pt.typewrite(location.replace('/', '\\') + '\n')
-        temp_x, temp_y = pt.position()
-        pt.moveTo(temp_x, temp_y + 70)
-        pt.leftClick()
-        pt.typewrite('\n')
+        attach_icon = pt.locateCenterOnScreen("../assets/attachment_icon.png", confidence=.7)
+        if attach_icon != None:
+            pt.moveTo(attach_icon.x, attach_icon.y, duration=.2)
+            pt.leftClick()
+            pt.moveTo(attach_icon.x, attach_icon.y - 220, duration=.2)
+            pt.leftClick()
+
+        time.sleep(SLEEP_INTERVAL)
+
+        open_prompt_recg = pt.locateCenterOnScreen('../assets/open_prompt_recg.png', confidence=.7)
+        if open_prompt_recg != None:
+            pt.moveTo(open_prompt_recg.x, open_prompt_recg.y, duration=.3)
+            pt.moveTo(open_prompt_recg.x + 200, open_prompt_recg.y + 25, duration=.3)
+            pt.leftClick()
+
+            KEYBOARD.press(Key.ctrl_l)
+            KEYBOARD.press('a')
+            KEYBOARD.release(Key.ctrl_l)
+            KEYBOARD.release('a')
+        if location == 'default':
+            _location = DEFAULT_ATTACHMENT
+            pt.typewrite(_location + '\n')
+            temp_x, temp_y = pt.position()
+            pt.moveTo(temp_x, temp_y + 70)
+            pt.leftClick()
+            pt.typewrite('\n')
+            alternate_send = pt.locateCenterOnScreen("../assetes/alt_send.png", confidence = .7)
+            pt.moveTo(alternate_send.x, alternate_send.y, duration=.3)
+            pt.leftClick()
+
+        else:
+            clear_attachments()
+            location = f'copy {location.replace("", "")} {os.getcwd()}\..\Attachments\\'
+            os.system(location)
+            location = f'{os.getcwd()}/../Attachments/'
+            pt.typewrite(location.replace('/', '\\') + '\n')
+            temp_x, temp_y = pt.position()
+            pt.moveTo(temp_x, temp_y + 70)
+            pt.leftClick()
+            pt.typewrite('\n')
+            alternate_send = pt.locateCenterOnScreen("../assetes/alt_send.png", confidence = .7)
+            pt.moveTo(alternate_send.x, alternate_send.y, duration=.3)
+            pt.leftClick()
 
         # file_icon = pt.locateCenterOnScreen('../assets/wtsp_file_icon.png', confidence = .8)
         # if file_icon != None:
