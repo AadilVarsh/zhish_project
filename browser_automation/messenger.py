@@ -27,15 +27,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 import socket
 import csv
 
-message_text = ""
+#message_text = ""
 #message_text = 'परिक्षण'
 # message you want to send
 
-with open('hindi_message.txt') as hindi_file:
-    for text in hindi_file:
-        message_text+=text
+#with open('hindi_message.txt') as hindi_file:
+ #   for text in hindi_file:
+  #      message_text+=text
 
-no_of_message = 1
+#no_of_message = 1
 # no. of time you want the message to be send
 
 moblie_no_list = []
