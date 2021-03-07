@@ -21,6 +21,9 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
+from zhish_project.datahandler import datahndlr
+
+
 CRITERIA = None
 
 
@@ -176,8 +179,11 @@ class Ui_zhish_auto_messenger(object):
 
         message = self.message_input.toPlainText()
         self.criteria = CRITERIA
+        
+        datahndlr.update_data(message = message, criteria = CRITERIA)
 
         self.message_input.clear()
+
 
     def run(self):
         prmpt = Prompt('COnfirm Prompt', 'Confirm?', 1)
@@ -185,6 +191,7 @@ class Ui_zhish_auto_messenger(object):
             if CRITERIA is not None:
                 message = self.message_input.toPlainText()
                 self.criteria = CRITERIA
+                datahndlr.update_data(message = message , criteria = CRITERIA)
                 # print(message, CRITERIA)
                 self.message_input.clear()
             else:

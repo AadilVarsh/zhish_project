@@ -2,6 +2,8 @@
 import arrow
 import sys
 import os
+import json
+import pathlib
 
 #CASE 1 EXACT 21 DAYS
 #CASE  GREATER THAN 21 DAYS ALSO REMAINDER IS 0
@@ -43,12 +45,23 @@ def sort_customer_list(user_list):
                 pass
     return sorted_users
 
-
+def update_data(message, criteria):
+    msg_info = {
+            "msg" : message,
+            "criteria" : criteria
+            }
+    os.remove("RunTime/msg_info.json")
+    pathlib.Path("RunTime/msg_info.json").touch() 
+    
+    with pathlib.Path("RunTime/msg_info.json").open("r+") as file:
+        json.dump(msg_info, file)
 
 if __name__ == "__main__":
     # print(DATE_TODAY)
-    for i in sort_customer_list(return_user_list()):
-        print(i[0] + ':' + i[1], end="\n")
+ #   for i in sort_customer_list(return_user_list()):
+  #      print(i[0] + ':' + i[1], end="\n")
+
+  update_data("hello", "general")
 
         
 
